@@ -1,0 +1,514 @@
+package com.microsoft.azure.sdk.iot.deps.ws.impl;
+
+import com.microsoft.azure.sdk.iot.deps.ws.WebSocket.WebSocketFrameReadState;
+import com.microsoft.azure.sdk.iot.deps.ws.WebSocket.WebSocketState;
+import com.microsoft.azure.sdk.iot.deps.ws.WebSocketHandler;
+import com.microsoft.azure.sdk.iot.deps.ws.WebSocketHandler.WebSocketMessageType;
+import com.microsoft.azure.sdk.iot.deps.ws.WebSocketHandler.WebsocketTuple;
+import e.c.a.a.b.l.c;
+import java.nio.ByteBuffer;
+import k.a.b.a.d.g0.b0;
+import k.a.b.a.d.g0.f0;
+import k.a.b.a.d.g0.l0;
+
+public class WebSocketImpl$WebSocketTransportWrapper
+  implements l0
+{
+  public final char[] HEX_DIGITS = { 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70 };
+  public final ByteBuffer _head;
+  public final b0 _underlyingInput;
+  public final f0 _underlyingOutput;
+  
+  public WebSocketImpl$WebSocketTransportWrapper(WebSocketImpl paramWebSocketImpl, b0 paramb0, f0 paramf0)
+  {
+    _underlyingInput = paramb0;
+    _underlyingOutput = paramf0;
+    paramWebSocketImpl = WebSocketImpl.access$100(paramWebSocketImpl).asReadOnlyBuffer();
+    _head = paramWebSocketImpl;
+    paramWebSocketImpl.limit(0);
+  }
+  
+  private String convertToBinary(ByteBuffer paramByteBuffer)
+  {
+    byte[] arrayOfByte = new byte[paramByteBuffer.remaining()];
+    paramByteBuffer.duplicate().get(arrayOfByte);
+    return convertToBinary(arrayOfByte);
+  }
+  
+  private String convertToBinary(byte[] paramArrayOfByte)
+  {
+    StringBuilder localStringBuilder = new StringBuilder();
+    int i = paramArrayOfByte.length;
+    for (int j = 0; j < i; j++)
+    {
+      localStringBuilder.append(String.format("%8s", new Object[] { Integer.toBinaryString(paramArrayOfByte[j] & 0xFF) }).replace(' ', '0'));
+      localStringBuilder.append('|');
+    }
+    return localStringBuilder.toString();
+  }
+  
+  private String convertToHex(ByteBuffer paramByteBuffer)
+  {
+    byte[] arrayOfByte = new byte[paramByteBuffer.remaining()];
+    paramByteBuffer.duplicate().get(arrayOfByte);
+    return convertToHex(arrayOfByte);
+  }
+  
+  private String convertToHex(byte[] paramArrayOfByte)
+  {
+    int i = paramArrayOfByte.length;
+    char[] arrayOfChar1 = new char[i * 5];
+    int j = 0;
+    int m;
+    for (int k = 0; j < i; k = m + 1)
+    {
+      m = k + 1;
+      arrayOfChar1[k] = ((char)48);
+      int n = m + 1;
+      arrayOfChar1[m] = ((char)120);
+      k = n + 1;
+      char[] arrayOfChar2 = HEX_DIGITS;
+      arrayOfChar1[n] = ((char)arrayOfChar2[((paramArrayOfByte[j] & 0xF0) >>> 4)]);
+      m = k + 1;
+      arrayOfChar1[k] = ((char)arrayOfChar2[(paramArrayOfByte[j] & 0xF)]);
+      arrayOfChar1[m] = ((char)124);
+      j++;
+    }
+    return new String(arrayOfChar1);
+  }
+  
+  private void processInput()
+  {
+    int i = WebSocketImpl.access$800(this$0).ordinal();
+    if (i != 1)
+    {
+      if ((i == 2) || (i == 3))
+      {
+        if (WebSocketImpl.access$200(this$0).remaining() > 0)
+        {
+          label44:
+          Object localObject;
+          WebSocketImpl localWebSocketImpl;
+          do
+          {
+            i = 0;
+            for (;;)
+            {
+              if (i != 0) {
+                break label691;
+              }
+              int j = WebSocketImpl.access$1000(this$0).ordinal();
+              if (j == 0) {
+                break label626;
+              }
+              if (j == 1) {
+                break;
+              }
+              if (j != 2)
+              {
+                if (j == 3)
+                {
+                  readInputBuffer();
+                  WebSocketImpl.access$300(this$0).flip();
+                  localObject = this$0;
+                  localObject = ((WebSocketImpl)localObject).unwrapBuffer(WebSocketImpl.access$300((WebSocketImpl)localObject));
+                  WebSocketImpl.access$402(this$0, ((WebSocketHandler.WebsocketTuple)localObject).getType());
+                  WebSocketImpl.access$1202(this$0, ((WebSocketHandler.WebsocketTuple)localObject).getLength());
+                  localWebSocketImpl = this$0;
+                  if (WebSocketImpl.access$400(localWebSocketImpl) == WebSocketHandler.WebSocketMessageType.WEB_SOCKET_MESSAGE_TYPE_HEADER_CHUNK) {
+                    localObject = WebSocket.WebSocketFrameReadState.CHUNK_READ;
+                  } else {
+                    localObject = WebSocket.WebSocketFrameReadState.CONTINUED_FRAME_READ;
+                  }
+                  WebSocketImpl.access$1002(localWebSocketImpl, (WebSocket.WebSocketFrameReadState)localObject);
+                  if ((WebSocketImpl.access$1000(this$0) != WebSocket.WebSocketFrameReadState.CHUNK_READ) && (WebSocketImpl.access$300(this$0).position() != WebSocketImpl.access$300(this$0).limit())) {
+                    i = 0;
+                  } else {
+                    i = 1;
+                  }
+                  if (WebSocketImpl.access$1000(this$0) == WebSocket.WebSocketFrameReadState.CONTINUED_FRAME_READ)
+                  {
+                    WebSocketImpl.access$300(this$0).compact();
+                  }
+                  else
+                  {
+                    WebSocketImpl.access$300(this$0).position(WebSocketImpl.access$300(this$0).limit());
+                    WebSocketImpl.access$300(this$0).limit(WebSocketImpl.access$300(this$0).capacity());
+                  }
+                }
+              }
+              else
+              {
+                readInputBuffer();
+                WebSocketImpl.access$300(this$0).flip();
+                if (WebSocketImpl.access$300(this$0).remaining() >= WebSocketImpl.access$1200(this$0) - WebSocketImpl.access$1100(this$0))
+                {
+                  localObject = new byte[(int)(WebSocketImpl.access$1200(this$0) - WebSocketImpl.access$1100(this$0))];
+                  WebSocketImpl.access$300(this$0).get((byte[])localObject, 0, (int)(WebSocketImpl.access$1200(this$0) - WebSocketImpl.access$1100(this$0)));
+                  WebSocketImpl.access$500(this$0).put((byte[])localObject);
+                  localObject = this$0;
+                  long l = WebSocketImpl.access$1100((WebSocketImpl)localObject);
+                  WebSocketImpl.access$1102((WebSocketImpl)localObject, WebSocketImpl.access$1200(this$0) - WebSocketImpl.access$1100(this$0) + l);
+                }
+                else
+                {
+                  i = WebSocketImpl.access$300(this$0).remaining();
+                  localObject = new byte[i];
+                  WebSocketImpl.access$300(this$0).get((byte[])localObject);
+                  WebSocketImpl.access$500(this$0).put((byte[])localObject);
+                  localObject = this$0;
+                  WebSocketImpl.access$1102((WebSocketImpl)localObject, WebSocketImpl.access$1100((WebSocketImpl)localObject) + i);
+                }
+                sendToUnderlyingInput();
+                localWebSocketImpl = this$0;
+                if (WebSocketImpl.access$1100(localWebSocketImpl) == WebSocketImpl.access$1200(this$0)) {
+                  localObject = WebSocket.WebSocketFrameReadState.INIT_READ;
+                } else {
+                  localObject = WebSocket.WebSocketFrameReadState.CONTINUED_FRAME_READ;
+                }
+                WebSocketImpl.access$1002(localWebSocketImpl, (WebSocket.WebSocketFrameReadState)localObject);
+                if (WebSocketImpl.access$300(this$0).remaining() == 0) {
+                  i = 1;
+                } else {
+                  i = 0;
+                }
+                WebSocketImpl.access$300(this$0).compact();
+              }
+            }
+            readInputBuffer();
+            localWebSocketImpl = this$0;
+            if (WebSocketImpl.access$300(localWebSocketImpl).position() < 2) {
+              localObject = WebSocketImpl.access$1000(this$0);
+            } else {
+              localObject = WebSocket.WebSocketFrameReadState.HEADER_READ;
+            }
+            WebSocketImpl.access$1002(localWebSocketImpl, (WebSocket.WebSocketFrameReadState)localObject);
+          } while (WebSocketImpl.access$1000(this$0) != WebSocket.WebSocketFrameReadState.CHUNK_READ);
+          for (;;)
+          {
+            i = 1;
+            break label44;
+            label626:
+            WebSocketImpl.access$1102(this$0, 0L);
+            readInputBuffer();
+            localWebSocketImpl = this$0;
+            if (WebSocketImpl.access$300(localWebSocketImpl).position() < 2) {
+              localObject = WebSocket.WebSocketFrameReadState.CHUNK_READ;
+            } else {
+              localObject = WebSocket.WebSocketFrameReadState.HEADER_READ;
+            }
+            WebSocketImpl.access$1002(localWebSocketImpl, (WebSocket.WebSocketFrameReadState)localObject);
+            if (WebSocketImpl.access$1000(this$0) != WebSocket.WebSocketFrameReadState.CHUNK_READ) {
+              break;
+            }
+          }
+        }
+        label691:
+        WebSocketImpl.access$200(this$0).compact();
+      }
+    }
+    else
+    {
+      if (WebSocketImpl.access$900(this$0).validateUpgradeReply(WebSocketImpl.access$200(this$0)).booleanValue()) {
+        WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_CONNECTED_FLOW);
+      }
+      WebSocketImpl.access$200(this$0).compact();
+    }
+  }
+  
+  private void readInputBuffer()
+  {
+    c.a(WebSocketImpl.access$200(this$0), WebSocketImpl.access$300(this$0));
+  }
+  
+  private boolean sendToUnderlyingInput()
+  {
+    int i = WebSocketImpl.access$400(this$0).ordinal();
+    boolean bool = true;
+    if (i != 0)
+    {
+      if (i != 1)
+      {
+        if (i != 3)
+        {
+          if (i != 4)
+          {
+            if (i == 5)
+            {
+              WebSocketImpl.access$500(this$0).flip();
+              WebSocketImpl.access$700(this$0).put(WebSocketImpl.access$500(this$0));
+              WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_CONNECTED_CLOSING);
+              WebSocketImpl.access$500(this$0).compact();
+              WebSocketImpl.access$500(this$0).flip();
+              break label322;
+            }
+          }
+          else
+          {
+            WebSocketImpl.access$500(this$0).flip();
+            WebSocketImpl.access$700(this$0).put(WebSocketImpl.access$500(this$0));
+            WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_CONNECTED_PONG);
+            WebSocketImpl.access$500(this$0).compact();
+            WebSocketImpl.access$500(this$0).flip();
+            break label322;
+          }
+        }
+        else
+        {
+          WebSocketImpl.access$500(this$0).flip();
+          if (c.a(WebSocketImpl.access$500(this$0), _underlyingInput) == -1) {
+            WebSocketImpl.access$602(this$0, true);
+          }
+          WebSocketImpl.access$500(this$0).compact();
+          WebSocketImpl.access$500(this$0).flip();
+          break label322;
+        }
+      }
+      else
+      {
+        WebSocketImpl.access$500(this$0).position(WebSocketImpl.access$500(this$0).limit());
+        WebSocketImpl.access$500(this$0).limit(WebSocketImpl.access$500(this$0).capacity());
+      }
+    }
+    else
+    {
+      WebSocketImpl.access$500(this$0).position(WebSocketImpl.access$500(this$0).limit());
+      WebSocketImpl.access$500(this$0).limit(WebSocketImpl.access$500(this$0).capacity());
+    }
+    bool = false;
+    label322:
+    WebSocketImpl.access$500(this$0).position(WebSocketImpl.access$500(this$0).limit());
+    WebSocketImpl.access$500(this$0).limit(WebSocketImpl.access$500(this$0).capacity());
+    return bool;
+  }
+  
+  public int capacity()
+  {
+    if (this$0._isWebSocketEnabled.booleanValue())
+    {
+      if (WebSocketImpl.access$600(this$0)) {
+        return -1;
+      }
+      return WebSocketImpl.access$200(this$0).remaining();
+    }
+    return _underlyingInput.capacity();
+  }
+  
+  public void close_head()
+  {
+    _underlyingOutput.close_head();
+  }
+  
+  public void close_tail()
+  {
+    WebSocketImpl.access$602(this$0, true);
+    if (this$0._isWebSocketEnabled.booleanValue())
+    {
+      WebSocketImpl.access$1302(this$0, true);
+      _underlyingInput.close_tail();
+    }
+    else
+    {
+      _underlyingInput.close_tail();
+    }
+  }
+  
+  public ByteBuffer head()
+  {
+    if (this$0._isWebSocketEnabled.booleanValue())
+    {
+      int i = WebSocketImpl.access$800(this$0).ordinal();
+      if (i != 1) {
+        if (i != 2)
+        {
+          if ((i != 3) && (i != 4)) {
+            return _underlyingOutput.head();
+          }
+        }
+        else
+        {
+          WebSocketImpl.access$1402(this$0, _underlyingOutput.pending());
+          if (WebSocketImpl.access$1400(this$0) > 0)
+          {
+            this$0.wrapBuffer(_underlyingOutput.head(), WebSocketImpl.access$100(this$0));
+            WebSocketImpl localWebSocketImpl = this$0;
+            WebSocketImpl.access$1502(localWebSocketImpl, WebSocketImpl.access$100(localWebSocketImpl).position() - WebSocketImpl.access$1400(this$0));
+            _head.limit(WebSocketImpl.access$100(this$0).position());
+          }
+          return _head;
+        }
+      }
+      return _head;
+    }
+    return _underlyingOutput.head();
+  }
+  
+  public int pending()
+  {
+    if (this$0._isWebSocketEnabled.booleanValue())
+    {
+      int i = WebSocketImpl.access$800(this$0).ordinal();
+      if (i != 0)
+      {
+        if (i != 1)
+        {
+          if (i != 2)
+          {
+            if (i != 3)
+            {
+              if (i != 4) {
+                return -1;
+              }
+              WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_CLOSED);
+              this$0.writeClose();
+              _head.limit(WebSocketImpl.access$100(this$0).position());
+              if (WebSocketImpl.access$1300(this$0))
+              {
+                WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_FAILED);
+                return -1;
+              }
+              return WebSocketImpl.access$100(this$0).position();
+            }
+            WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_CONNECTED_FLOW);
+            this$0.writePong();
+            _head.limit(WebSocketImpl.access$100(this$0).position());
+            if (WebSocketImpl.access$1300(this$0))
+            {
+              WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_FAILED);
+              return -1;
+            }
+            return WebSocketImpl.access$100(this$0).position();
+          }
+          WebSocketImpl.access$1402(this$0, _underlyingOutput.pending());
+          if (WebSocketImpl.access$1400(this$0) > 0)
+          {
+            WebSocketImpl localWebSocketImpl = this$0;
+            WebSocketImpl.access$1502(localWebSocketImpl, WebSocketImpl.access$900(localWebSocketImpl).calculateHeaderSize(WebSocketImpl.access$1400(this$0)));
+            i = WebSocketImpl.access$1400(this$0);
+            return WebSocketImpl.access$1500(this$0) + i;
+          }
+          return WebSocketImpl.access$1400(this$0);
+        }
+        if ((WebSocketImpl.access$1300(this$0)) && (WebSocketImpl.access$100(this$0).position() == 0))
+        {
+          WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_FAILED);
+          return -1;
+        }
+        return WebSocketImpl.access$100(this$0).position();
+      }
+      if (WebSocketImpl.access$100(this$0).position() == 0)
+      {
+        WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_CONNECTING);
+        this$0.writeUpgradeRequest();
+        _head.limit(WebSocketImpl.access$100(this$0).position());
+        if (WebSocketImpl.access$1300(this$0))
+        {
+          WebSocketImpl.access$802(this$0, WebSocket.WebSocketState.PN_WS_FAILED);
+          return -1;
+        }
+        return WebSocketImpl.access$100(this$0).position();
+      }
+      return WebSocketImpl.access$100(this$0).position();
+    }
+    return _underlyingOutput.pending();
+  }
+  
+  public void pop(int paramInt)
+  {
+    if (this$0._isWebSocketEnabled.booleanValue()) {
+      switch (WebSocketImpl.access$800(this$0).ordinal())
+      {
+      default: 
+        break;
+      case 0: 
+      case 5: 
+      case 6: 
+        _underlyingOutput.pop(paramInt);
+        break;
+      case 2: 
+      case 3: 
+      case 4: 
+        if ((paramInt >= WebSocketImpl.access$1500(this$0)) && (WebSocketImpl.access$100(this$0).position() != 0))
+        {
+          WebSocketImpl.access$100(this$0).flip();
+          WebSocketImpl.access$100(this$0).position(paramInt);
+          WebSocketImpl.access$100(this$0).compact();
+          _head.position(0);
+          _head.limit(WebSocketImpl.access$100(this$0).position());
+          _underlyingOutput.pop(paramInt - WebSocketImpl.access$1500(this$0));
+          WebSocketImpl.access$1502(this$0, 0);
+        }
+        else if ((paramInt > 0) && (paramInt < WebSocketImpl.access$1500(this$0)))
+        {
+          WebSocketImpl localWebSocketImpl = this$0;
+          WebSocketImpl.access$1502(localWebSocketImpl, WebSocketImpl.access$1500(localWebSocketImpl) - paramInt);
+        }
+        else
+        {
+          _underlyingOutput.pop(paramInt);
+        }
+        break;
+      case 1: 
+        if (WebSocketImpl.access$100(this$0).position() != 0)
+        {
+          WebSocketImpl.access$100(this$0).flip();
+          WebSocketImpl.access$100(this$0).position(paramInt);
+          WebSocketImpl.access$100(this$0).compact();
+          _head.position(0);
+          _head.limit(WebSocketImpl.access$100(this$0).position());
+        }
+        else
+        {
+          _underlyingOutput.pop(paramInt);
+        }
+        break;
+      }
+    } else {
+      _underlyingOutput.pop(paramInt);
+    }
+  }
+  
+  public int position()
+  {
+    if (this$0._isWebSocketEnabled.booleanValue())
+    {
+      if (WebSocketImpl.access$600(this$0)) {
+        return -1;
+      }
+      return WebSocketImpl.access$200(this$0).position();
+    }
+    return _underlyingInput.position();
+  }
+  
+  public void process()
+  {
+    if (this$0._isWebSocketEnabled.booleanValue())
+    {
+      WebSocketImpl.access$200(this$0).flip();
+      int i = WebSocketImpl.access$800(this$0).ordinal();
+      if ((i != 1) && (i != 2)) {
+        _underlyingInput.process();
+      } else {
+        processInput();
+      }
+    }
+    else
+    {
+      _underlyingInput.process();
+    }
+  }
+  
+  public ByteBuffer tail()
+  {
+    if (this$0._isWebSocketEnabled.booleanValue()) {
+      return WebSocketImpl.access$200(this$0);
+    }
+    return _underlyingInput.tail();
+  }
+}
+
+/* Location:
+ * Qualified Name:     base.com.microsoft.azure.sdk.iot.deps.ws.impl.WebSocketImpl.WebSocketTransportWrapper
+ * Java Class Version: 6 (50.0)
+ * JD-Core Version:    0.7.1
+ */

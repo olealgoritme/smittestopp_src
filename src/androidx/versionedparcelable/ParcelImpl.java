@@ -1,0 +1,38 @@
+package androidx.versionedparcelable;
+
+import android.annotation.SuppressLint;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.os.Parcelable.Creator;
+import d.z.a;
+import d.z.b;
+import d.z.c;
+
+@SuppressLint({"BanParcelableUsage"})
+public class ParcelImpl
+  implements Parcelable
+{
+  public static final Parcelable.Creator<ParcelImpl> CREATOR = new ParcelImpl.a();
+  public final c x;
+  
+  public ParcelImpl(Parcel paramParcel)
+  {
+    x = new b(paramParcel).c();
+  }
+  
+  public int describeContents()
+  {
+    return 0;
+  }
+  
+  public void writeToParcel(Parcel paramParcel, int paramInt)
+  {
+    new b(paramParcel).a(x);
+  }
+}
+
+/* Location:
+ * Qualified Name:     base.androidx.versionedparcelable.ParcelImpl
+ * Java Class Version: 6 (50.0)
+ * JD-Core Version:    0.7.1
+ */

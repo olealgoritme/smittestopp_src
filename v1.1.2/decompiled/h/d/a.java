@@ -1,0 +1,22 @@
+package h.d;
+
+import h.c.f;
+import h.c.g.g;
+
+public final class a
+  extends b
+{
+  public final g.g c = new g.g(this);
+  public final g.g d = new g.g(this);
+  
+  public a(f paramf)
+  {
+    super(paramf);
+  }
+}
+
+/* Location:
+ * Qualified Name:     h.d.a
+ * Java Class Version: 6 (50.0)
+ * JD-Core Version:    0.7.1
+ */
